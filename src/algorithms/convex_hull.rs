@@ -29,6 +29,8 @@ impl MonotoneConvexHull {
             lower_l = self.half_calculate(&mut lower_l);
         }
 
+        upper_l.0.pop();
+        lower_l.0.pop();
         upper_l.0.append(&mut lower_l.0);
         upper_l
     }
@@ -47,5 +49,29 @@ impl MonotoneConvexHull {
             half_l_len = half_l.0.len();
         }
         half_l.clone()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::MonotoneConvexHull;
+    use crate::geometry::point::{Point, Points};
+
+    #[test]
+    fn convex_hull() {
+        let vec_points: &mut Vec<Point> = &mut vec![[0.0, 0.0], [0.0, 4.0], [4.0, 0.0], [4.0, 4.0]]
+            .iter()
+            .map(|p| (*p).into())
+            .collect();
+        let assert_vec: Vec<Point> = vec_points.clone();
+
+        let mut points = Points::random(20, 0.1..3.9);
+        points.0.append(vec_points);
+
+        let mut algo = MonotoneConvexHull::build(points);
+        let mut convex_hull = algo.calculate();
+        convex_hull.0.sort();
+
+        assert_eq!(assert_vec, convex_hull.0);
     }
 }
