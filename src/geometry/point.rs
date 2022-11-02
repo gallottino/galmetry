@@ -105,6 +105,7 @@ impl Point {
 mod tests {
 
     use crate::geometry::point::Point;
+    use std::cmp::Ordering;
 
     #[test]
     fn new_point() {
@@ -141,6 +142,15 @@ mod tests {
         let p2 = Point::from2d(3.0, 4.0);
 
         let distance = p1.distance_from(&p2);
+        assert_eq!(distance, 5.0);
+    }
+
+    #[test]
+    fn get_distance() {
+        let p1 = Point::from2d(0.0, 0.0);
+        let p2 = Point::from2d(3.0, 4.0);
+
+        let distance = Point::distance(&p1, &p2);
         assert_eq!(distance, 5.0);
     }
 
@@ -194,5 +204,37 @@ mod tests {
         let p3 = Point::from2d(2.0, 0.0);
 
         assert_eq!(Point::make_right_turn(&p1, &p2, &p3), true);
+    }
+
+    #[test]
+    fn cmp_points() {
+        let p1 = Point::from2d(0.0, 0.0);
+        let p2 = Point::from2d(1.0, 1.0);
+
+        assert_eq!(p1.cmp(&p2), Ordering::Less);
+    }
+
+    #[test]
+    fn f64_2_from_point() {
+        let array_point: [f64; 2] = Point::from2d(2.0, 3.0).into();
+
+        assert_eq!(array_point[0], 2.0);
+        assert_eq!(array_point[1], 3.0);
+    }
+
+    #[test]
+    fn f64_3_from_point() {
+        let array_point: [f64; 3] = Point::new(2.0, 3.0, 4.0).into();
+
+        assert_eq!(array_point[0], 2.0);
+        assert_eq!(array_point[1], 3.0);
+        assert_eq!(array_point[2], 4.0);
+    }
+
+    #[test]
+    fn display_point() {
+        let p = Point::from2d(2.0, 2.0);
+
+        assert_eq!(format! {"{}", p}, "(2.0, 2.0)");
     }
 }

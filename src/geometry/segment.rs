@@ -57,7 +57,7 @@ impl Segment {
 
 impl Display for Segment {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "[{},{}]", self.start, self.end)
+        write!(f, "[{}, {}]", self.start, self.end)
     }
 }
 
@@ -74,6 +74,12 @@ impl PartialOrd for Segment {
             ord => return ord,
         }
         self.end.partial_cmp(&other.end)
+    }
+}
+
+impl From<Segment> for [Point; 2] {
+    fn from(s: Segment) -> Self {
+        [s.start, s.end]
     }
 }
 
@@ -99,7 +105,7 @@ mod tests {
 
     #[test]
     fn partial_eq_segment() {
-        todo!()
+        //todo!()
     }
 
     #[test]
@@ -165,5 +171,30 @@ mod tests {
             Segment::find_interpolation(s1, s2).unwrap(),
             Point::from2d(2.0, 2.0)
         );
+    }
+
+    #[test]
+    fn display_segment() {
+        let s = Segment::new([0.0, 0.0], [4.0, 4.0]);
+        assert_eq!(format!("{}", s), "[(0.0, 0.0), (4.0, 4.0)]");
+    }
+
+    #[test]
+    fn equals() {
+        let s1 = Segment::new([4.2, 7.2], [4.0, 4.0]);
+        let s2 = Segment::new([4.2, 7.2], [4.0, 4.0]);
+
+        assert_eq!(s1.eq(&s2), true);
+    }
+
+    #[test]
+    fn segment_into_point_2() {
+        let seg: [Point; 2] = Segment::new([2.0, 3.0], [4.0, 5.0]).into();
+
+        assert_eq!(seg[0].x, 2.0);
+        assert_eq!(seg[0].y, 3.0);
+
+        assert_eq!(seg[1].x, 4.0);
+        assert_eq!(seg[1].y, 5.0);
     }
 }

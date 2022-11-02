@@ -76,17 +76,37 @@ impl From<Vec<[f64; 2]>> for Points {
     }
 }
 
-impl From<Points> for Vec<[f64; 3]> {
-    fn from(points: Points) -> Self {
-        points.0.iter().map(|p| (*p).into()).collect()
-    }
-}
-
-impl From<Points> for Vec<Point> {
-    fn from(points: Points) -> Self {
-        points.0
-    }
-}
-
 #[cfg(test)]
-mod tests {}
+mod tests {
+    use super::Points;
+
+    #[test]
+    fn f64_2_into_points() {
+        let points: Points = vec![
+            [1.0,2.0],
+            [3.0,4.0]
+        ].into();
+
+        assert_eq!(points[0].x, 1.0); 
+        assert_eq!(points[0].y, 2.0); 
+
+        assert_eq!(points[1].x, 3.0); 
+        assert_eq!(points[1].y, 4.0); 
+    }
+
+    #[test]
+    fn points_into_f64_2() {
+        let points: Points = vec![
+            [1.0,2.0],
+            [3.0,4.0]
+        ].into();
+
+        let vec_points: Vec<[f64;2]> = points.into();
+        assert_eq!(vec_points[0][0], 1.0); 
+        assert_eq!(vec_points[0][1], 2.0); 
+
+        assert_eq!(vec_points[1][0], 3.0); 
+        assert_eq!(vec_points[1][1], 4.0); 
+    }
+
+}
