@@ -42,6 +42,7 @@ impl eframe::App for GalmetrySandbox {
                 if ui.button("Monotone Algorithm").clicked() {
                     let mut algo = MonotoneConvexHull::build(self.points.clone());
                     self.convex_hull = algo.calculate();
+                    self.convex_hull.0.push(self.convex_hull.0[0]);
                 }
                 if ui.button("Reset").clicked() {
                     self.points = galmetry::geometry::point::Points::random(50, 0.0..10.0);
@@ -57,6 +58,7 @@ impl eframe::App for GalmetrySandbox {
                 .allow_drag(false);
 
             plot.show(ui, |plot_ui| {
+
                 plot_ui.line(
                     Line::new(self.get_plot_points(&self.convex_hull))
                         .color(Color32::from_rgb(0, 255, 0)),
