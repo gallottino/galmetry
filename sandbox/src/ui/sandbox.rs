@@ -37,18 +37,28 @@ impl GalmetrySandbox {
 
 impl eframe::App for GalmetrySandbox {
     fn update(&mut self, ctx: &egui::Context, _frame: &mut eframe::Frame) {
-        egui::CentralPanel::default().show(ctx, |ui| {
+
+        egui::SidePanel::left("Algorithms").show(ctx, |ui|{
+            
+            ui.heading("Algorithms");
+            ui.separator();
             ui.horizontal(|ui| {
+                
                 if ui.button("Monotone Algorithm").clicked() {
                     let mut algo = MonotoneConvexHull::build(self.points.clone());
                     self.convex_hull = algo.calculate();
                     self.convex_hull.0.push(self.convex_hull.0[0]);
                 }
-                if ui.button("Reset").clicked() {
+
+                if ui.button("⟲").clicked() {
                     self.points = galmetry::geometry::point::Points::random(50, 0.0..10.0);
                     self.convex_hull = galmetry::geometry::point::Points::new();
                 }
             });
+        });
+
+        egui::CentralPanel::default().show(ctx, |ui| {
+            
 
             let plot = Plot::new("Convex Hull")
                 .legend(Legend::default())
