@@ -53,7 +53,7 @@ impl Sub for Point {
 
 impl Display for Point {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "(x: {:.1}, y: {:.1}, z: {:.1})", self.x, self.y, self.z)
+        write!(f, "({:.1}, {:.1})", self.x, self.y)
     }
 }
 
