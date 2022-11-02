@@ -101,40 +101,6 @@ impl Point {
     }
 }
 
-#[derive(Clone)]
-pub struct Points(pub Vec<Point>);
-impl Points {
-    pub fn new() -> Self {
-        Self { 0: vec![] }
-    }
-
-    pub fn random(capacity: u32, r: Range<f64>) -> Self {
-        let mut random_points = Self::new();
-        for _i in 0..capacity {
-            random_points.0.push(Point::random(r.clone()));
-        }
-        random_points
-    }
-}
-
-impl From<Points> for Vec<[f64; 2]> {
-    fn from(points: Points) -> Self {
-        points.0.iter().map(|p| (*p).into()).collect()
-    }
-}
-
-impl From<Points> for Vec<[f64; 3]> {
-    fn from(points: Points) -> Self {
-        points.0.iter().map(|p| (*p).into()).collect()
-    }
-}
-
-impl From<Points> for Vec<Point> {
-    fn from(points: Points) -> Self {
-        points.0
-    }
-}
-
 #[cfg(test)]
 mod tests {
 
