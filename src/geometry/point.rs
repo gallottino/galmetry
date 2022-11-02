@@ -21,6 +21,12 @@ impl Ord for Point {
     }
 }
 
+impl From<[f64; 2]> for Point {
+    fn from(p: [f64; 2]) -> Self {
+        Self::from2d(p[0], p[1])
+    }
+}
+
 impl From<Point> for [f64; 2] {
     fn from(p: Point) -> Self {
         [p.x, p.y]
@@ -120,6 +126,12 @@ impl From<Points> for Vec<[f64; 2]> {
 impl From<Points> for Vec<[f64; 3]> {
     fn from(points: Points) -> Self {
         points.0.iter().map(|p| (*p).into()).collect()
+    }
+}
+
+impl From<Points> for Vec<Point> {
+    fn from(points: Points) -> Self {
+        points.0
     }
 }
 
