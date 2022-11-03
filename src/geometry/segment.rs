@@ -1,10 +1,18 @@
-use std::{fmt::Display, cmp::Ordering};
+use std::{cmp::Ordering, fmt::Display};
 
 use super::point::Point;
 
+#[derive(Clone)]
 pub struct Segment {
     pub start: Point,
     pub end: Point,
+}
+
+pub enum Position {
+    Start,
+    Contains,
+    End,
+    Outside,
 }
 
 impl Segment {
@@ -13,24 +21,47 @@ impl Segment {
         let start: Point = p1.into();
         let end: Point = p2.into();
 
-        match start.sweep_plane_sort(&end){
-            Ordering::Less | Ordering::Equal => {
-                Self {start, end}
-            }
-            Ordering::Greater => {
-                Self {start: end, end: start}
-            }
+        match start.sweep_plane_cmp(&end) {
+            Ordering::Less | Ordering::Equal => Self { start, end },
+            Ordering::Greater => Self {
+                start: end,
+                end: start,
+            },
         }
     }
 
-    pub fn contains(&self, p: Point) -> bool {
+    pub fn upper_limit(&self, p: &Point) -> bool {
+        return *p == self.start;
+    }
+
+    pub fn lower_limit(&self, p: &Point) -> bool {
+        return *p == self.end;
+    }
+
+    pub fn contains(&self, p: &Point) -> bool {
         f64::min(self.start.x, self.end.x) <= p.x
             && p.x <= f64::max(self.start.x, self.end.x)
             && f64::min(self.start.y, self.end.y) <= p.y
             && p.y <= f64::max(self.start.y, self.end.y)
     }
 
-    pub fn find_interpolation(s1: Segment, s2: Segment) -> Option<Point> {
+    pub fn point_position(&self, p: &Point) -> Position {
+        if *p == self.start {
+            return Position::Start;
+        }
+
+        if *p == self.end {
+            return Position::End;
+        }
+
+        if self.contains(p) {
+            return Position::Contains;
+        }
+
+        Position::Outside
+    }
+
+    pub fn find_interpolation(s1: &Segment, s2: &Segment) -> Option<Point> {
         let a1 = s1.end.y - s1.start.y;
         let b1 = s1.start.x - s1.end.x;
         let c1 = a1 * s1.start.x + b1 * s1.start.y;
@@ -48,7 +79,8 @@ impl Segment {
         let y = (a1 * c2 - a2 * c1) / denominator;
 
         let interpolation_point = Point::from2d(x, y);
-        if s1.contains(interpolation_point) == false || s2.contains(interpolation_point) == false {
+        if s1.contains(&interpolation_point) == false || s2.contains(&interpolation_point) == false
+        {
             return None;
         }
 
@@ -70,11 +102,23 @@ impl PartialEq for Segment {
 
 impl PartialOrd for Segment {
     fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        match self.start.partial_cmp(&other.start) {
-            Some(core::cmp::Ordering::Equal) => {}
+        match self.start.sweep_plane_cmp(&other.start) {
+            core::cmp::Ordering::Equal => {}
+            ord => return Some(ord),
+        }
+        Some(self.end.sweep_plane_cmp(&other.end))
+    }
+}
+
+impl Eq for Segment {}
+
+impl Ord for Segment {
+    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
+        match self.start.sweep_plane_cmp(&other.start) {
+            core::cmp::Ordering::Equal => {}
             ord => return ord,
         }
-        self.end.partial_cmp(&other.end)
+        self.end.sweep_plane_cmp(&other.end)
     }
 }
 
@@ -116,7 +160,7 @@ mod tests {
         let s = Segment::new([0.0, 0.0], [2.0, 2.0]);
         let p = Point::from2d(2.0, 2.0);
 
-        assert!(s.contains(p));
+        assert!(s.contains(&p));
     }
 
     #[test]
@@ -124,7 +168,7 @@ mod tests {
         let s = Segment::new([0.0, 4.0], [2.0, 2.0]);
         let p = Point::from2d(2.0, 2.0);
 
-        assert!(s.contains(p));
+        assert!(s.contains(&p));
     }
 
     #[test]
@@ -132,7 +176,7 @@ mod tests {
         let s = Segment::new([0.0, 0.0], [2.0, 2.0]);
         let p = Point::from2d(3.0, 3.0);
 
-        assert_eq!(s.contains(p), false);
+        assert_eq!(s.contains(&p), false);
     }
 
     #[test]
@@ -140,7 +184,7 @@ mod tests {
         let s1 = Segment::new([0.0, -2.0], [0.0, 2.0]);
         let s2 = Segment::new([-2.0, 0.0], [2.0, 0.0]);
 
-        let opt_point = Segment::find_interpolation(s1, s2);
+        let opt_point = Segment::find_interpolation(&s1, &s2);
         assert!(opt_point.is_some());
 
         let point = opt_point.unwrap();
@@ -152,7 +196,7 @@ mod tests {
         let s1 = Segment::new([0.0, 0.0], [4.0, 0.0]);
         let s2 = Segment::new([2.0, 0.0], [4.0, 0.0]);
 
-        assert_eq!(Segment::find_interpolation(s1, s2), None)
+        assert_eq!(Segment::find_interpolation(&s1, &s2), None)
     }
 
     #[test]
@@ -160,7 +204,7 @@ mod tests {
         let s1 = Segment::new([0.0, 0.0], [4.0, 4.0]);
         let s2 = Segment::new([0.0, 4.0], [1.0, 3.0]);
 
-        assert_eq!(Segment::find_interpolation(s1, s2), None)
+        assert_eq!(Segment::find_interpolation(&s1, &s2), None)
     }
 
     #[test]
@@ -168,10 +212,10 @@ mod tests {
         let s1 = Segment::new([0.0, 0.0], [4.0, 4.0]);
         let s2 = Segment::new([0.0, 4.0], [2.0, 2.0]);
 
-        assert!(s1.contains(Point::from2d(2.0, 2.0)));
-        assert!(s2.contains(Point::from2d(2.0, 2.0)));
+        assert!(s1.contains(&Point::from2d(2.0, 2.0)));
+        assert!(s2.contains(&Point::from2d(2.0, 2.0)));
         assert_eq!(
-            Segment::find_interpolation(s1, s2).unwrap(),
+            Segment::find_interpolation(&s1, &s2).unwrap(),
             Point::from2d(2.0, 2.0)
         );
     }
