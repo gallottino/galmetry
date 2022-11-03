@@ -17,7 +17,7 @@ The crate is composed by 2 modules:
 
 ## Roadmap <a name="roadmap"> </a>
 - [x] Convex Hull
-- [ ] Line Segment Intersaction
+- [x] Line Segment Intersaction
 - [ ] Triangulation
 
 ## Resources <a name="resources"> </a>
