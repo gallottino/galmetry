@@ -72,6 +72,24 @@ impl Point {
         }
     }
 
+    pub fn lexicograph_sort(&self, p: &Point) -> Ordering {
+        self.partial_cmp(&p).unwrap()
+    }
+
+    pub fn sweep_plane_sort(&self, p: &Point) -> Ordering {
+
+        match self.y.partial_cmp(&p.y) {
+            // self.y < p.y
+            Some(Ordering::Less) => Ordering::Greater,
+            // self.y > p.y
+            Some(Ordering::Greater) => Ordering::Less,
+            // self.y  == p.y && self.x < p.x
+            Some(Ordering::Equal) => self.x.partial_cmp(&p.x).unwrap(),
+            // NaN value
+            None => panic!("Comparision is impossible!")
+        }
+    }
+
     /// create new Point starting from (x, y) coordinates
     pub fn from2d(x: f64, y: f64) -> Self {
         Point { x, y, z: 0.0 }

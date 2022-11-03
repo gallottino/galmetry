@@ -22,7 +22,15 @@ impl Points {
     }
 
     pub fn lexicograph_sort(&mut self) {
-        self.0.sort()
+        self.0.sort_by(|p1, p2| {
+            p1.lexicograph_sort(p2)
+        });
+    }
+
+    pub fn sweep_plane_sort(&mut self) {
+        self.0.sort_by(|p1,p2| {
+            p1.sweep_plane_sort(p2)
+        })
     }
 
     pub fn len(&self) -> usize {

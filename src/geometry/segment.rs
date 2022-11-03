@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, cmp::Ordering};
 
 use super::point::Point;
 
@@ -12,12 +12,13 @@ impl Segment {
     pub fn new(p1: impl Into<Point>, p2: impl Into<Point>) -> Self {
         let start: Point = p1.into();
         let end: Point = p2.into();
-        if start < end {
-            Self { start, end }
-        } else {
-            Self {
-                start: end,
-                end: start,
+
+        match start.sweep_plane_sort(&end){
+            Ordering::Less | Ordering::Equal => {
+                Self {start, end}
+            }
+            Ordering::Greater => {
+                Self {start: end, end: start}
             }
         }
     }
@@ -93,14 +94,16 @@ mod tests {
     fn new_segment() {
         let s = Segment::new([2.0, 2.0], [4.0, 4.0]);
 
-        assert_eq!(s.start, [2.0, 2.0].into());
+        assert_eq!(s.start, [4.0, 4.0].into());
+        assert_eq!(s.end, [2.0, 2.0].into());
     }
 
     #[test]
     fn new_segment_reverse() {
         let s = Segment::new([4.0, 4.0], [2.0, 2.0]);
 
-        assert_eq!(s.start, [2.0, 2.0].into());
+        assert_eq!(s.start, [4.0, 4.0].into());
+        assert_eq!(s.end, [2.0, 2.0].into());
     }
 
     #[test]
@@ -176,7 +179,7 @@ mod tests {
     #[test]
     fn display_segment() {
         let s = Segment::new([0.0, 0.0], [4.0, 4.0]);
-        assert_eq!(format!("{}", s), "[(0.0, 0.0), (4.0, 4.0)]");
+        assert_eq!(format!("{}", s), "[(4.0, 4.0), (0.0, 0.0)]");
     }
 
     #[test]
@@ -191,10 +194,10 @@ mod tests {
     fn segment_into_point_2() {
         let seg: [Point; 2] = Segment::new([2.0, 3.0], [4.0, 5.0]).into();
 
-        assert_eq!(seg[0].x, 2.0);
-        assert_eq!(seg[0].y, 3.0);
+        assert_eq!(seg[0].x, 4.0);
+        assert_eq!(seg[0].y, 5.0);
 
-        assert_eq!(seg[1].x, 4.0);
-        assert_eq!(seg[1].y, 5.0);
+        assert_eq!(seg[1].x, 2.0);
+        assert_eq!(seg[1].y, 3.0);
     }
 }
