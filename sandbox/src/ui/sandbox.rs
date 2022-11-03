@@ -5,7 +5,10 @@ use eframe::{
     },
     epaint::Color32,
 };
-use galmetry::{algorithms::{convex_hull::MonotoneConvexHull, algorithm::Algorithm}, geometry::point::Point};
+use galmetry::{
+    algorithms::{algorithm::Algorithm, convex_hull::MonotoneConvexHull},
+    geometry::point::Point,
+};
 
 pub struct GalmetrySandbox {
     points: galmetry::geometry::points::Points,

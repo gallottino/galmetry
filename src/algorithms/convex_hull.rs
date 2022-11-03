@@ -69,7 +69,7 @@ impl MonotoneConvexHull {
 #[cfg(test)]
 mod tests {
     use super::MonotoneConvexHull;
-    use crate::{geometry::points::Points, algorithms::algorithm::Algorithm};
+    use crate::{algorithms::algorithm::Algorithm, geometry::points::Points};
 
     #[test]
     fn convex_hull() {
