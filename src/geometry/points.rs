@@ -1,4 +1,4 @@
-use std::ops::{Index, IndexMut, Range};
+use std::{ops::{Index, IndexMut, Range}, vec::IntoIter};
 
 use super::point::Point;
 
@@ -22,15 +22,11 @@ impl Points {
     }
 
     pub fn lexicograph_sort(&mut self) {
-        self.0.sort_by(|p1, p2| {
-            p1.lexicograph_sort(p2)
-        });
+        self.0.sort_by(|p1, p2| p1.lexicograph_cmp(p2));
     }
 
     pub fn sweep_plane_sort(&mut self) {
-        self.0.sort_by(|p1,p2| {
-            p1.sweep_plane_sort(p2)
-        })
+        self.0.sort_by(|p1, p2| p1.sweep_plane_cmp(p2))
     }
 
     pub fn len(&self) -> usize {
@@ -47,6 +43,17 @@ impl Points {
 
     pub fn append(&mut self, points: &mut Points) {
         self.0.append(&mut points.0);
+    }
+
+}
+
+impl IntoIterator for Points {
+    type Item = Point;
+
+    type IntoIter = IntoIter<Self::Item>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.0.into_iter()
     }
 }
 
@@ -90,31 +97,24 @@ mod tests {
 
     #[test]
     fn f64_2_into_points() {
-        let points: Points = vec![
-            [1.0,2.0],
-            [3.0,4.0]
-        ].into();
+        let points: Points = vec![[1.0, 2.0], [3.0, 4.0]].into();
 
-        assert_eq!(points[0].x, 1.0); 
-        assert_eq!(points[0].y, 2.0); 
+        assert_eq!(points[0].x, 1.0);
+        assert_eq!(points[0].y, 2.0);
 
-        assert_eq!(points[1].x, 3.0); 
-        assert_eq!(points[1].y, 4.0); 
+        assert_eq!(points[1].x, 3.0);
+        assert_eq!(points[1].y, 4.0);
     }
 
     #[test]
     fn points_into_f64_2() {
-        let points: Points = vec![
-            [1.0,2.0],
-            [3.0,4.0]
-        ].into();
+        let points: Points = vec![[1.0, 2.0], [3.0, 4.0]].into();
 
-        let vec_points: Vec<[f64;2]> = points.into();
-        assert_eq!(vec_points[0][0], 1.0); 
-        assert_eq!(vec_points[0][1], 2.0); 
+        let vec_points: Vec<[f64; 2]> = points.into();
+        assert_eq!(vec_points[0][0], 1.0);
+        assert_eq!(vec_points[0][1], 2.0);
 
-        assert_eq!(vec_points[1][0], 3.0); 
-        assert_eq!(vec_points[1][1], 4.0); 
+        assert_eq!(vec_points[1][0], 3.0);
+        assert_eq!(vec_points[1][1], 4.0);
     }
-
 }
