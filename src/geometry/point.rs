@@ -17,7 +17,7 @@ impl Eq for Point {}
 
 impl Ord for Point {
     fn cmp(&self, other: &Point) -> Ordering {
-        self.partial_cmp(other).unwrap()
+        self.sweep_plane_cmp(other)
     }
 }
 
@@ -72,12 +72,11 @@ impl Point {
         }
     }
 
-    pub fn lexicograph_sort(&self, p: &Point) -> Ordering {
+    pub fn lexicograph_cmp(&self, p: &Point) -> Ordering {
         self.partial_cmp(&p).unwrap()
     }
 
-    pub fn sweep_plane_sort(&self, p: &Point) -> Ordering {
-
+    pub fn sweep_plane_cmp(&self, p: &Point) -> Ordering {
         match self.y.partial_cmp(&p.y) {
             // self.y < p.y
             Some(Ordering::Less) => Ordering::Greater,
@@ -86,7 +85,7 @@ impl Point {
             // self.y  == p.y && self.x < p.x
             Some(Ordering::Equal) => self.x.partial_cmp(&p.x).unwrap(),
             // NaN value
-            None => panic!("Comparision is impossible!")
+            None => panic!("Comparision is impossible!"),
         }
     }
 
@@ -254,5 +253,14 @@ mod tests {
         let p = Point::from2d(2.0, 2.0);
 
         assert_eq!(format! {"{}", p}, "(2.0, 2.0)");
+    }
+
+    #[test]
+    fn panic_comparision() {
+        let p1 = Point::from2d(f64::NAN, 1.0);
+        let p2 = Point::from2d(f64::NAN, 1.0);
+
+        let result = std::panic::catch_unwind(|| p1.lexicograph_cmp(&p2));
+        assert!(result.is_err());
     }
 }
