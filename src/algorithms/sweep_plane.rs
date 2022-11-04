@@ -38,7 +38,7 @@ impl Algorithm for SweepPlane {
 }
 
 impl SweepPlane {
-    pub fn new(segments: BTreeSet<Segment>) -> Self {
+    pub fn build(segments: BTreeSet<Segment>) -> Self {
         Self {
             segments,
             queue: BTreeMap::new(),
@@ -46,8 +46,15 @@ impl SweepPlane {
         }
     }
 
-    fn handle_event_point(&mut self, intersection_points: &mut BTreeSet<Point>) {
+    pub fn random(capacity: usize) -> Self {
+        let mut random_segments = BTreeSet::<Segment>::new();
+        for _i in 0..capacity {
+            random_segments.insert(Segment::random(0.1..0.9));
+        }
+        Self::build(random_segments)
+    }
 
+    fn handle_event_point(&mut self, intersection_points: &mut BTreeSet<Point>) {
         let (event_point, (upper, contains, lower)) = self.queue.pop_first().unwrap();
 
         lower.union(&contains).for_each(|s| {
@@ -150,7 +157,7 @@ mod tests {
 
     use crate::{
         algorithms::algorithm::Algorithm,
-        geometry::{segment::Segment, point::Point, points::Points},
+        geometry::{point::Point, points::Points, segment::Segment},
     };
 
     use super::SweepPlane;
@@ -164,15 +171,14 @@ mod tests {
         segments.insert(s1);
         segments.insert(s2);
 
-        let mut algo = SweepPlane::new(segments);
+        let mut algo = SweepPlane::build(segments);
         let res: Vec<Point> = algo.calculate().into_iter().collect();
 
-        let assert_res: Points = vec![[1.0,1.0]].into();
+        let assert_res: Points = vec![[1.0, 1.0]].into();
         for p in assert_res {
             assert!(res.contains(&p));
         }
     }
-
 
     #[test]
     fn test_sweep_plane_2() {
@@ -187,10 +193,10 @@ mod tests {
         segments.insert(s3);
         segments.insert(s4);
 
-        let mut algo = SweepPlane::new(segments);
+        let mut algo = SweepPlane::build(segments);
         let res = algo.calculate();
-    
-        let assert_res: Points = vec![[1.0,1.0], [2.0,2.0], [3.0,1.0], [2.0,0.0]].into();
+
+        let assert_res: Points = vec![[1.0, 1.0], [2.0, 2.0], [3.0, 1.0], [2.0, 0.0]].into();
         for p in assert_res {
             assert!(res.contains(&p));
         }

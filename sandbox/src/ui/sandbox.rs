@@ -1,40 +1,29 @@
 use eframe::{
-    egui::{
-        self,
-        plot::{Legend, Line, Plot, PlotPoints, Points},
-    },
-    epaint::Color32,
+    egui::{self, Button},
+    epaint::{Color32, Stroke},
 };
-use galmetry::{
-    algorithms::{algorithm::Algorithm, convex_hull::MonotoneConvexHull},
-    geometry::point::Point,
+
+use super::{
+    algorithms::{convex_hull::ConvexHullView, sweep_plane::SweepPlaneView},
+    view::AlgorithmSection,
 };
 
 pub struct GalmetrySandbox {
-    points: galmetry::geometry::points::Points,
-    convex_hull: galmetry::geometry::points::Points,
+    pub algorithms: Vec<Box<dyn AlgorithmSection>>,
+    pub current: String,
 }
 
 impl Default for GalmetrySandbox {
     fn default() -> Self {
-        Self {
-            points: galmetry::geometry::points::Points::new(),
-            convex_hull: galmetry::geometry::points::Points::new(),
-        }
-    }
-}
+        let mut algorithms: Vec<Box<dyn AlgorithmSection>> = vec![];
+        algorithms.push(Box::new(ConvexHullView::random(50)));
+        algorithms.push(Box::new(SweepPlaneView::random(20)));
 
-impl GalmetrySandbox {
-    pub fn random() -> Self {
+        let current = algorithms[0].label().to_owned();
         Self {
-            points: galmetry::geometry::points::Points::random(50, 0.0..10.0),
-            convex_hull: galmetry::geometry::points::Points::new(),
+            algorithms,
+            current,
         }
-    }
-
-    fn get_plot_points(&self, p: &galmetry::geometry::points::Points) -> PlotPoints {
-        let vec_points: Vec<[f64; 2]> = p.clone().into();
-        vec_points.into()
     }
 }
 
@@ -43,49 +32,47 @@ impl eframe::App for GalmetrySandbox {
         egui::SidePanel::left("Algorithms").show(ctx, |ui| {
             ui.heading("Algorithms");
             ui.separator();
-            ui.horizontal(|ui| {
-                if ui.button("Monotone Algorithm").clicked() {
-                    let mut algo = MonotoneConvexHull::build(self.points.clone());
-                    self.convex_hull = algo.calculate();
-                    self.convex_hull.push(self.convex_hull[0]);
-                }
+            for view in &mut self.algorithms {
+                ui.add_space(10.0);
 
-                if ui.button("⟲").clicked() {
-                    self.points = galmetry::geometry::points::Points::random(50, 0.0..10.0);
-                    self.convex_hull = galmetry::geometry::points::Points::new();
-                }
-            });
-        });
-
-        egui::CentralPanel::default().show(ctx, |ui| {
-            let plot = Plot::new("Convex Hull")
-                .legend(Legend::default())
-                .view_aspect(1.0)
-                .allow_boxed_zoom(false)
-                .allow_zoom(false)
-                .allow_drag(false);
-
-            plot.show(ui, |plot_ui| {
-                plot_ui.line(
-                    Line::new(self.get_plot_points(&self.convex_hull))
-                        .color(Color32::from_rgb(0, 255, 0)),
-                );
-
-                plot_ui.points(
-                    Points::new(self.get_plot_points(&self.points))
-                        .radius(3.0)
-                        .color(Color32::from_rgb(200, 0, 0))
-                        .shape(egui::plot::MarkerShape::Square),
-                );
-
-                if plot_ui.plot_clicked() {
-                    let click_plot = plot_ui.pointer_coordinate();
-                    match click_plot {
-                        Some(p) => self.points.push(Point::from2d(p.x, p.y)),
-                        None => (),
+                ui.horizontal(|ui| {
+                    
+                    if view.label() == self.current {
+                        ui.add(Button::new("   ").fill(Color32::from_rgb(255, 255, 255))); 
                     }
-                }
-            });
+                    else {
+                        ui.add(Button::new("   "));
+                    }
+
+                    let mut section_b = egui::Button::new(view.label());
+
+                    if view.label() == self.current {
+                        section_b = egui::Button::new(view.label())
+                            
+                    }
+                    if ui.add(section_b).clicked() {
+                        self.current = view.label().to_owned();
+                    }
+
+                    ui.add_space(20.0);
+
+                    if ui.button("Run ▶").clicked() {
+                        view.calculate();
+                    }
+
+                    if ui.button("⟲").clicked() {
+                        view.reset();
+                        self.current = view.label().to_owned();
+                    }
+                });
+            }
         });
+
+        for section in &mut self.algorithms {
+            match section.label() == self.current {
+                true => section.show(ctx),
+                false => {}
+            }
+        }
     }
 }

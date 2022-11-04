@@ -1,4 +1,4 @@
-use std::{cmp::Ordering, fmt::Display};
+use std::{cmp::Ordering, fmt::Display, ops::Range};
 
 use super::point::Point;
 
@@ -28,6 +28,12 @@ impl Segment {
                 end: start,
             },
         }
+    }
+
+    pub fn random(r: Range<f64>) -> Self {
+        let p1 = Point::random(r.clone());
+        let p2 = Point::random(r.clone());
+        Self::new(p1, p2)
     }
 
     pub fn upper_limit(&self, p: &Point) -> bool {

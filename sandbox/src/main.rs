@@ -11,6 +11,6 @@ fn main() {
     eframe::run_native(
         "Galmetry Sandbox",
         options,
-        Box::new(|_cc| Box::new(GalmetrySandbox::random())),
+        Box::new(|_cc| Box::new(GalmetrySandbox::default())),
     );
 }

@@ -1,4 +1,7 @@
-use std::{ops::{Index, IndexMut, Range}, vec::IntoIter};
+use std::{
+    ops::{Index, IndexMut, Range},
+    vec::IntoIter,
+};
 
 use super::point::Point;
 
@@ -13,7 +16,7 @@ impl Points {
         Self { 0: data.into() }
     }
 
-    pub fn random(capacity: u32, r: Range<f64>) -> Self {
+    pub fn random(capacity: usize, r: Range<f64>) -> Self {
         let mut random_points = Self::new();
         for _i in 0..capacity {
             random_points.0.push(Point::random(r.clone()));
@@ -44,7 +47,6 @@ impl Points {
     pub fn append(&mut self, points: &mut Points) {
         self.0.append(&mut points.0);
     }
-
 }
 
 impl IntoIterator for Points {
