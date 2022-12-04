@@ -38,6 +38,10 @@ impl Algorithm for MonotoneConvexHull {
         convex_hull
     }
 
+    fn step(&mut self) {
+        todo!();
+    }
+
     fn reset(&mut self) {
         todo!()
     }

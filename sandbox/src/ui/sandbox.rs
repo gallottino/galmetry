@@ -1,6 +1,6 @@
 use eframe::{
     egui::{self, Button},
-    epaint::{Color32, Stroke},
+    epaint::Color32,
 };
 
 use super::{
@@ -36,11 +36,9 @@ impl eframe::App for GalmetrySandbox {
                 ui.add_space(10.0);
 
                 ui.horizontal(|ui| {
-                    
                     if view.label() == self.current {
-                        ui.add(Button::new("   ").fill(Color32::from_rgb(255, 255, 255))); 
-                    }
-                    else {
+                        ui.add(Button::new("   ").fill(Color32::from_rgb(255, 255, 255)));
+                    } else {
                         ui.add(Button::new("   "));
                     }
 
@@ -48,7 +46,6 @@ impl eframe::App for GalmetrySandbox {
 
                     if view.label() == self.current {
                         section_b = egui::Button::new(view.label())
-                            
                     }
                     if ui.add(section_b).clicked() {
                         self.current = view.label().to_owned();

@@ -3,5 +3,7 @@ pub trait Algorithm {
 
     fn calculate(&mut self) -> Self::Output;
 
+    fn step(&mut self);
+
     fn reset(&mut self);
 }

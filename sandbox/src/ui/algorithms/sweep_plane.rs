@@ -81,7 +81,7 @@ impl AlgorithmSection for SweepPlaneView {
     }
 
     fn reset(&mut self) {
-        *self = SweepPlaneView::random(5);
+        *self = SweepPlaneView::random(20);
     }
 
     fn show(&mut self, ctx: &eframe::egui::Context) {

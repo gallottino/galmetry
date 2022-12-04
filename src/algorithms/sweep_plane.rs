@@ -12,6 +12,7 @@ pub struct SweepPlane {
     segments: BTreeSet<Segment>,
     queue: BTreeMap<Point, (BTreeSet<Segment>, BTreeSet<Segment>, BTreeSet<Segment>)>,
     status: BTreeSet<Segment>,
+    intersection_points: BTreeSet<Point>,
 }
 
 impl Algorithm for SweepPlane {
@@ -19,17 +20,20 @@ impl Algorithm for SweepPlane {
     type Output = BTreeSet<Point>;
 
     fn calculate(&mut self) -> Self::Output {
-        let mut intersection_points = BTreeSet::new();
-
         while let Some(s) = self.segments.pop_first() {
             self.add_event_queue(s.start, s.clone());
+            self.add_event_queue(s.end, s.clone());
         }
 
         while self.queue.is_empty() == false {
-            self.handle_event_point(&mut intersection_points);
+            self.step();
         }
 
-        intersection_points
+        self.intersection_points.clone()
+    }
+
+    fn step(&mut self) {
+        self.handle_event_point();
     }
 
     fn reset(&mut self) {
@@ -43,6 +47,7 @@ impl SweepPlane {
             segments,
             queue: BTreeMap::new(),
             status: BTreeSet::new(),
+            intersection_points: BTreeSet::new(),
         }
     }
 
@@ -54,8 +59,12 @@ impl SweepPlane {
         Self::build(random_segments)
     }
 
-    fn handle_event_point(&mut self, intersection_points: &mut BTreeSet<Point>) {
+    fn handle_event_point(&mut self) {
         let (event_point, (upper, contains, lower)) = self.queue.pop_first().unwrap();
+
+        if contains.len() > 0 {
+            self.intersection_points.insert(event_point);
+        }
 
         lower.union(&contains).for_each(|s| {
             self.status.remove(s);
@@ -65,42 +74,54 @@ impl SweepPlane {
             self.status.insert(s.clone());
         });
 
-        if self.status.len() > 1 {
+        if upper.len() == 0 && contains.len() == 0 && self.status.len() > 0 {
             let mut left = self.status.first().unwrap().clone();
             let mut right = self.status.first().unwrap().clone();
+
             for s in &self.status {
-                match s.start.cmp(&event_point) {
+                match s.start.sweep_plane_cmp(&event_point) {
                     std::cmp::Ordering::Less => left = s.clone(),
-                    _ => {
+                    std::cmp::Ordering::Greater => {
                         right = s.clone();
                         break;
                     }
+                    _ => {}
                 }
             }
 
-            if upper.len() == 0 && contains.len() == 0 {
-                self.find_new_event(
-                    left.clone(),
-                    right.clone(),
-                    event_point,
-                    intersection_points,
-                );
-            } else {
-                let leftmost = upper.union(&contains).min().unwrap();
-                self.find_new_event(
-                    left.clone(),
-                    leftmost.clone(),
-                    event_point,
-                    intersection_points,
-                );
+            self.find_new_event(left.clone(), right.clone(), event_point);
 
-                let rightmost = upper.union(&contains).max().unwrap();
-                self.find_new_event(
-                    right.clone(),
-                    rightmost.clone(),
-                    event_point,
-                    intersection_points,
-                );
+            for s in lower {
+                self.status.remove(&s);
+            }
+        } else {
+            use std::ops::Bound::{Excluded, Unbounded};
+
+            if self.status.len() < 2 {
+                return;
+            };
+
+            let leftmost = upper.union(&contains).min().unwrap();
+            let rightmost = upper.union(&contains).max().unwrap();
+
+            let status_cloned = self.status.clone();
+            let mut left_search = status_cloned.range((Unbounded, Excluded(leftmost)));
+            let mut right_search = status_cloned.range((Excluded(rightmost), Unbounded));
+
+            let left_opt = left_search.next();
+            match left_opt {
+                Some(left) => {
+                    self.find_new_event(left.clone(), leftmost.clone(), event_point);
+                }
+                None => {}
+            }
+
+            let right_opt = right_search.next();
+            match right_opt {
+                Some(right) => {
+                    self.find_new_event(right.clone(), rightmost.clone(), event_point);
+                }
+                None => {}
             }
         }
     }
@@ -110,13 +131,10 @@ impl SweepPlane {
         segment_left: Segment,
         segment_right: Segment,
         event_point: Point,
-        interpolation_point: &mut BTreeSet<Point>,
     ) {
         match Segment::find_interpolation(&segment_left, &segment_right) {
             Some(p) => {
-                if interpolation_point.contains(&p) == false {
-                    interpolation_point.insert(p);
-                }
+                if self.intersection_points.contains(&p) == false {}
 
                 if p.y < event_point.y && self.queue.contains_key(&p) == false {
                     self.add_event_queue(p, segment_left.clone());
@@ -200,5 +218,28 @@ mod tests {
         for p in assert_res {
             assert!(res.contains(&p));
         }
+    }
+
+    #[test]
+    fn test_sweep_plane_3() {
+        let s1 = Segment::new([0.85, 0.9], [0.8, 0.3]);
+        let s2 = Segment::new([0.4, 0.8], [0.67, 0.68]);
+        let s3 = Segment::new([0.81, 0.77], [0.82, 0.78]);
+        let s4 = Segment::new([0.32, 0.74], [0.41, 0.51]);
+        let s5 = Segment::new([0.75, 0.61], [0.36, 0.54]);
+
+        let mut segments = BTreeSet::<Segment>::new();
+        segments.insert(s1);
+        segments.insert(s2);
+        segments.insert(s3);
+        segments.insert(s4);
+        segments.insert(s5);
+
+        let mut algo = SweepPlane::build(segments);
+        let res = algo.calculate();
+        for p in res.clone() {
+            println!("{}", p)
+        }
+        assert_eq!(res.len(), 2);
     }
 }
