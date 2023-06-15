@@ -54,7 +54,7 @@ impl Segment {
         Position::Outside
     }
 
-    pub fn find_interpolation(s1: &Segment, s2: &Segment) -> Option<Point> {
+    pub fn find_intersection(s1: &Segment, s2: &Segment) -> Option<Point> {
         let a1 = s1.end.y - s1.start.y;
         let b1 = s1.start.x - s1.end.x;
         let c1 = a1 * s1.start.x + b1 * s1.start.y;

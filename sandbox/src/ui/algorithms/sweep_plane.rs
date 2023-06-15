@@ -16,14 +16,14 @@ use galmetry::{
 };
 
 pub struct SweepPlaneView {
-    segments: BTreeSet<Segment>,
+    segments: Vec<Segment>,
     intersection_points: BTreeSet<Point>,
 }
 
 impl Default for SweepPlaneView {
     fn default() -> Self {
         Self {
-            segments: BTreeSet::new(),
+            segments: Vec::new(),
             intersection_points: BTreeSet::new(),
         }
     }
@@ -31,9 +31,9 @@ impl Default for SweepPlaneView {
 
 impl SweepPlaneView {
     pub fn random(capacity: usize) -> Self {
-        let mut random_segments = BTreeSet::<Segment>::new();
+        let mut random_segments = Vec::<Segment>::new();
         for _i in 0..capacity {
-            random_segments.insert(Segment::random(0.1..0.9));
+            random_segments.push(Segment::random(0.1..0.9));
         }
         Self {
             segments: random_segments,

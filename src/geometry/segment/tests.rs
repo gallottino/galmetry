@@ -54,7 +54,7 @@ fn find_interpolation() {
     let s1 = Segment::new([0.0, -2.0], [0.0, 2.0]);
     let s2 = Segment::new([-2.0, 0.0], [2.0, 0.0]);
 
-    let opt_point = Segment::find_interpolation(&s1, &s2);
+    let opt_point = Segment::find_intersection(&s1, &s2);
     assert!(opt_point.is_some());
 
     let point = opt_point.unwrap();
@@ -66,7 +66,7 @@ fn find_interpolation_parallel() {
     let s1 = Segment::new([0.0, 0.0], [4.0, 0.0]);
     let s2 = Segment::new([2.0, 0.0], [4.0, 0.0]);
 
-    assert_eq!(Segment::find_interpolation(&s1, &s2), None)
+    assert_eq!(Segment::find_intersection(&s1, &s2), None)
 }
 
 #[test]
@@ -74,7 +74,7 @@ fn find_interpolation_incident_none() {
     let s1 = Segment::new([0.0, 0.0], [4.0, 4.0]);
     let s2 = Segment::new([0.0, 4.0], [1.0, 3.0]);
 
-    assert_eq!(Segment::find_interpolation(&s1, &s2), None)
+    assert_eq!(Segment::find_intersection(&s1, &s2), None)
 }
 
 #[test]
@@ -85,7 +85,7 @@ fn find_interpolation_incident() {
     assert!(s1.contains(&Point::from2d(2.0, 2.0)));
     assert!(s2.contains(&Point::from2d(2.0, 2.0)));
     assert_eq!(
-        Segment::find_interpolation(&s1, &s2).unwrap(),
+        Segment::find_intersection(&s1, &s2).unwrap(),
         Point::from2d(2.0, 2.0)
     );
 }
