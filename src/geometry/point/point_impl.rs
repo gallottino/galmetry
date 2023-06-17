@@ -1,3 +1,4 @@
+
 use std::{
     cmp::Ordering,
     fmt::Display,
@@ -12,7 +13,7 @@ impl Eq for Point {}
 
 impl Ord for Point {
     fn cmp(&self, other: &Point) -> Ordering {
-        self.sweep_plane_cmp(other)
+        self.lexicograph_cmp(other)
     }
 }
 
@@ -46,9 +47,24 @@ impl Sub for Point {
     }
 }
 
+impl PartialOrd for Point {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        match self.x.partial_cmp(&other.x) {
+            Some(core::cmp::Ordering::Equal) => {}
+            ord => return ord,
+        }
+        match self.y.partial_cmp(&other.y) {
+            Some(core::cmp::Ordering::Equal) => {}
+            ord => return ord,
+        }
+        self.z.partial_cmp(&other.z)
+    }
+}
+
+
 impl Display for Point {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "({:.1}, {:.1})", self.x, self.y)
+        write!(f, "({:.8}, {:.8})", self.x, self.y)
     }
 }
 

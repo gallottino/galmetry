@@ -17,7 +17,7 @@ impl Default for GalmetrySandbox {
     fn default() -> Self {
         let mut algorithms: Vec<Box<dyn AlgorithmSection>> = vec![];
         algorithms.push(Box::new(ConvexHullView::random(50)));
-        algorithms.push(Box::new(SweepPlaneView::random(20)));
+        algorithms.push(Box::new(SweepPlaneView::random(5)));
 
         let current = algorithms[0].label().to_owned();
         Self {

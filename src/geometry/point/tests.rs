@@ -107,7 +107,7 @@ fn sweep_line_cmp_points() {
     let p1 = Point::from2d(0.0, 0.0);
     let p2 = Point::from2d(1.0, 1.0);
 
-    assert_eq!(p1.cmp(&p2), Ordering::Greater);
+    assert_eq!(p1.sweep_plane_cmp(&p2), Ordering::Greater);
 }
 
 #[test]

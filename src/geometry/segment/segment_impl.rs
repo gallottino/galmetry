@@ -72,10 +72,6 @@ impl Segment {
         let y = (a1 * c2 - a2 * c1) / denominator;
 
         let interpolation_point = Point::from2d(x, y);
-        if s1.contains(&interpolation_point) == false || s2.contains(&interpolation_point) == false
-        {
-            return None;
-        }
 
         Some(interpolation_point)
     }
@@ -118,5 +114,27 @@ impl Ord for Segment {
 impl From<Segment> for [Point; 2] {
     fn from(s: Segment) -> Self {
         [s.start, s.end]
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::geometry::{segment::Segment, point::Point};
+
+
+    #[test]
+    fn test_intersection() {
+        let s1 = Segment::new([0.4248, 0.7734], [0.4525, 0.3885]);
+        let s2 = Segment::new([0.1710, 0.7903], [0.2802, 0.7221]);
+
+        let sweep_line = Segment::new([-1000.0, 0.7734],[1000.0, 0.7734]);
+
+        let point_1 = Segment::find_intersection(&s1, &sweep_line);
+        let point_2 = Segment::find_intersection(&s2, &sweep_line);
+
+        let right_point_2 = Point::new(0.1980598240469, 0.7734,0.0);
+
+        assert_eq!(right_point_2,point_2.unwrap());
+        println!("p1:{}, p2:{}", point_1.unwrap(), point_2.unwrap());
     }
 }

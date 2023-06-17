@@ -15,7 +15,7 @@ impl PartialOrd for StatusValue {
         let event_point = self.0.borrow();
         let sweep_line = Segment::new([-1000.0, event_point.y], [1000.0, event_point.y]);
 
-        println!("{} with {}", self.1, other.1);
+        println!("{} with {} and eventPoint: {}", self.1, other.1, event_point);
 
         if self.1 == other.1 { return Some(std::cmp::Ordering::Equal) };
 
