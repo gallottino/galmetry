@@ -8,7 +8,7 @@ impl Segment {
         let start: Point = p1.into();
         let end: Point = p2.into();
 
-        match start.sweep_plane_cmp(&end) {
+        match start.sweep_plane_cmp(&end).unwrap() {
             Ordering::Less | Ordering::Equal => Self { start, end },
             Ordering::Greater => Self {
                 start: end,
@@ -87,36 +87,23 @@ impl Display for Segment {
     }
 }
 
-impl PartialEq for Segment {
-    fn eq(&self, other: &Self) -> bool {
-        self.start == other.start && self.end == other.end
-    }
-}
-
-impl PartialOrd for Segment {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        match self.start.sweep_plane_cmp(&other.start) {
-            core::cmp::Ordering::Equal => {}
-            ord => return Some(ord),
-        }
-        Some(self.end.sweep_plane_cmp(&other.end))
-    }
-}
-
-impl Eq for Segment {}
-
-impl Ord for Segment {
-    fn cmp(&self, other: &Self) -> std::cmp::Ordering {
-        match self.start.sweep_plane_cmp(&other.start) {
-            core::cmp::Ordering::Equal => {}
-            ord => return ord,
-        }
-        self.end.sweep_plane_cmp(&other.end)
-    }
-}
-
 impl From<Segment> for [Point; 2] {
     fn from(s: Segment) -> Self {
         [s.start, s.end]
+    }
+}
+
+impl From<Segment> for [[f64; 2]; 2] {
+    fn from(s: Segment) -> Self {
+        [[s.start.x, s.start.y], [s.end.x, s.end.y]]
+    }
+}
+
+impl From<[[f64; 2]; 2]> for Segment {
+    fn from(value: [[f64; 2]; 2]) -> Self {
+        Segment {
+            start: value[0].into(),
+            end: value[1].into(),
+        }
     }
 }

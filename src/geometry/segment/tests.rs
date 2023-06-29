@@ -97,14 +97,6 @@ fn display_segment() {
 }
 
 #[test]
-fn equals() {
-    let s1 = Segment::new([4.2, 7.2], [4.0, 4.0]);
-    let s2 = Segment::new([4.2, 7.2], [4.0, 4.0]);
-
-    assert_eq!(s1.eq(&s2), true);
-}
-
-#[test]
 fn segment_into_point_2() {
     let seg: [Point; 2] = Segment::new([2.0, 3.0], [4.0, 5.0]).into();
 

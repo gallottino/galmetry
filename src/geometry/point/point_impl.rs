@@ -43,16 +43,19 @@ impl Point {
         }
     }
 
-    pub fn sweep_plane_cmp(&self, p: &Point) -> Ordering {
-        match self.y.partial_cmp(&p.y) {
-            // self.y < p.y
-            Some(Ordering::Less) => Ordering::Greater,
-            // self.y > p.y
-            Some(Ordering::Greater) => Ordering::Less,
-            // self.y  == p.y && self.x < p.x
-            Some(Ordering::Equal) => self.x.partial_cmp(&p.x).unwrap(),
-            // NaN value
-            None => panic!("Comparision is impossible!"),
+    pub fn sweep_plane_cmp(&self, other: &Point) -> Option<Ordering> {
+        if self.y > other.y {
+            return Some(std::cmp::Ordering::Less);
+        } else if f64::abs(self.y - other.y) < common::DELTA && self.x < other.x {
+            return Some(std::cmp::Ordering::Less);
+        } else if self.x != f64::NAN
+            && self.y != f64::NAN
+            && other.x != f64::NAN
+            && other.y != f64::NAN
+        {
+            return Some(std::cmp::Ordering::Greater);
+        } else {
+            None
         }
     }
 
@@ -111,6 +114,8 @@ impl PartialEq for Point {
             && f64::abs(self.z - other.z) <= common::DELTA
     }
 }
+
+impl Eq for Point {}
 
 impl Display for Point {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

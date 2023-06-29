@@ -1,5 +1,5 @@
 /// A rappresentation of a point in a three-dimensional space
-#[derive(Clone, Copy, Debug)]
+#[derive(Clone, Copy, Debug, Default)]
 pub struct Point {
     pub x: f64,
     pub y: f64,
