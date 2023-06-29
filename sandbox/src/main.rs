@@ -7,7 +7,7 @@ use crate::ui::sandbox::GalmetrySandbox;
 fn main() {
     let mut options = eframe::NativeOptions::default();
 
-    options.min_window_size = Some(Vec2::new(800.0, 600.0));
+    options.min_window_size = Some(Vec2::new(1200.0, 600.0));
     eframe::run_native(
         "Galmetry Sandbox",
         options,

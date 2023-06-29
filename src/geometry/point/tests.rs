@@ -53,17 +53,23 @@ fn test_lexicographic_order() {
     let mut p1 = Point::from2d(2.0, 4.0);
     let mut p2 = Point::from2d(3.0, 0.0);
 
-    assert!(p1 < p2);
+    assert_eq!(p1.lexicograph_cmp(&p2), std::cmp::Ordering::Less);
 
     p1 = Point::from2d(3.0, 0.0);
     p2 = Point::from2d(3.0, 4.0);
 
-    assert!(p1 < p2);
+    assert_eq!(p1.lexicograph_cmp(&p2), std::cmp::Ordering::Less);
 
     p1 = Point::from2d(3.0, 4.0);
     p2 = Point::from2d(3.0, 0.0);
 
-    assert!(p1 > p2);
+    assert_eq!(p1.lexicograph_cmp(&p2), std::cmp::Ordering::Greater);
+
+    p1 = Point::from2d(0.2, 0.9);
+    p2 = Point::from2d(0.1, 0.8);
+
+    println!("{:?}", p1.lexicograph_cmp(&p2));
+    assert_eq!(p1.lexicograph_cmp(&p2), std::cmp::Ordering::Greater);
 }
 
 #[test]
@@ -79,7 +85,7 @@ fn anti_clockwise() {
     let p1 = Point::from2d(1.0, 3.0);
     let p2 = Point::from2d(3.0, 2.0);
 
-    assert!(Point::anti_clockwise(&p1, &p2));
+    assert!(Point::clockwise(&p1, &p2) == false);
 }
 
 #[test]
@@ -107,7 +113,7 @@ fn sweep_line_cmp_points() {
     let p1 = Point::from2d(0.0, 0.0);
     let p2 = Point::from2d(1.0, 1.0);
 
-    assert_eq!(p1.cmp(&p2), Ordering::Greater);
+    assert_eq!(p1.sweep_plane_cmp(&p2), Ordering::Greater);
 }
 
 #[test]
@@ -135,10 +141,9 @@ fn display_point() {
 }
 
 #[test]
-fn panic_comparision() {
-    let p1 = Point::from2d(f64::NAN, 1.0);
-    let p2 = Point::from2d(f64::NAN, 1.0);
+fn point_eq() {
+    let p1 = Point::new(1.2, 0.4, 0.0);
+    let p2 = Point::new(1.2, 0.4, 0.0);
 
-    let result = std::panic::catch_unwind(|| p1.lexicograph_cmp(&p2));
-    assert!(result.is_err());
+    assert!(p1 == p2);
 }

@@ -2,6 +2,8 @@ use eframe::egui;
 
 pub trait View {
     fn ui(&mut self, ui: &mut egui::Ui);
+
+    fn debug_ui(&mut self, ui: &mut egui::Ui);
 }
 
 pub trait AlgorithmSection {

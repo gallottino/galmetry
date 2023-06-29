@@ -15,8 +15,6 @@ impl PartialOrd for StatusValue {
         let event_point = self.0.borrow();
         let sweep_line = Segment::new([-1000.0, event_point.y], [1000.0, event_point.y]);
 
-        println!("{} with {}", self.1, other.1);
-
         if self.1 == other.1 { return Some(std::cmp::Ordering::Equal) };
 
         let self_intersection = Segment::find_intersection(&self.1, &sweep_line).unwrap();
@@ -85,7 +83,7 @@ impl SweepPlane {
 
         Self {
             segments: segs,
-            event_point: Point::random(0.0..1.0),
+                        event_point: Point::random(0.0..1.0),
             queue: BTreeMap::new(),
             status: BTreeSet::new(),
             intersections: BTreeSet::new(),
@@ -98,6 +96,9 @@ impl SweepPlane {
         let (c_p, l_p) = self.get_contains_and_lower(&event_point);
 
         self.event_point = event_point;
+
+        println!("Starting new event point: {}", self.event_point);
+
 
         println!("{}", event_point);
         if u_p.len() + c_p.len() + l_p.len() > 1 {
@@ -269,5 +270,13 @@ mod tests {
             println!("{}", p)
         }
         assert_eq!(res.len(), 2);
+    }
+
+    #[test]
+    fn test_sweep_plane_4() {
+        let s1 = Segment::new([0.1,0.5], [0.2,0.1]);
+        let s2 = Segment::new([0.4,0.5], [0.1,0.1]);
+        let s3 = Segment::new([0.4,0.3], [0.3,0.4]);
+        let s4 = Segment::new([], [0.41, 0.51]);
     }
 }
